@@ -117,6 +117,8 @@ img { max-width: 100%; display: block; }
   transition: opacity 0.7s var(--ease-out), visibility 0.7s;
 }
 .loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+/* Later pages of a visit skip the intro (class set by the inline <head> script) */
+.dived .loader { display: none; }
 
 .loader-text {
   font-family: var(--font-display);
@@ -241,6 +243,16 @@ img { max-width: 100%; display: block; }
 .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
 .nav-links a.active { color: var(--foam); }
 .nav-links a.active::after { transform: scaleX(1); background: var(--gold); }
+/* Resume: the one menu item that opens a file, set apart as a pill */
+.nav-links a.nav-resume {
+  padding: 0.38rem 1rem;
+  border: 1px solid var(--aqua-deep);
+  border-radius: 100px;
+  color: var(--aqua);
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+}
+.nav-links a.nav-resume::after { display: none; }
+.nav-links a.nav-resume:hover { color: var(--foam); border-color: var(--aqua); background: var(--aqua-glow); }
 
 .mobile-menu-btn {
   display: none;
@@ -264,6 +276,7 @@ img { max-width: 100%; display: block; }
   }
   .nav-links.open { opacity: 1; visibility: visible; }
   .nav-links a { font-size: 1.4rem; font-family: var(--font-display); font-weight: 400; }
+  .nav-links a.nav-resume { padding: 0.45rem 1.6rem; }
 }
 
 /* ============ HERO ============ */
@@ -289,6 +302,11 @@ img { max-width: 100%; display: block; }
   content: '';
   width: 42px; height: 1px;
   background: var(--aqua);
+}
+/* Phones: tighter tracking keeps the role line on one line */
+@media (max-width: 480px) {
+  .hero-label { letter-spacing: 0.2em; gap: 0.7rem; }
+  .hero-label::before { width: 28px; }
 }
 
 .hero-title {
@@ -742,6 +760,17 @@ button.btn[type="submit"]:hover { transform: scale(1.02); }
   transform: translateY(-2px);
 }
 
+/* In-progress certifications: a quiet line under the credential cards */
+.cert-pending {
+  margin-top: 2.2rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mist-dim);
+}
+
 /* ============ MARQUEE ============ */
 .marquee {
   overflow: hidden;
@@ -755,7 +784,7 @@ button.btn[type="submit"]:hover { transform: scale(1.02); }
 .marquee-track {
   display: flex; gap: 3rem;
   width: max-content;
-  animation: marquee 36s linear infinite;
+  animation: marquee 45s linear infinite;
 }
 .marquee:hover .marquee-track { animation-play-state: paused; }
 @keyframes marquee { to { transform: translateX(-50%); } }

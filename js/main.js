@@ -18,10 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
     history.replaceState(null, '', clean + location.search + location.hash);
   }
 
-  /* ============ LOADER ============ */
+  /* ============ LOADER ============
+     The water-fill intro plays on the first page of a visit only. Pages
+     opened after that skip it: the inline script in each <head> adds
+     .dived to <html> before first paint, so the loader never flashes. */
   const loader = document.querySelector('.loader');
   if (loader) {
-    window.setTimeout(() => loader.classList.add('hidden'), reducedMotion ? 150 : 1250);
+    let dived = false;
+    try {
+      dived = sessionStorage.getItem('hp-dived') === '1';
+      sessionStorage.setItem('hp-dived', '1');
+    } catch (e) { /* storage blocked: always play the intro */ }
+    if (dived) loader.classList.add('hidden');
+    else window.setTimeout(() => loader.classList.add('hidden'), reducedMotion ? 150 : 1250);
   }
 
   /* ============ DESCENT — mid-water blue deepens to abyss as you scroll ============
@@ -884,7 +893,8 @@ document.addEventListener('DOMContentLoaded', () => {
       creatures.length = Math.min(creatures.length, target);
     }
 
-    function updateCreatures(p) {
+    // dt: time since the last frame, in 60 fps frames (see draw)
+    function updateCreatures(p, dt) {
       ensureCreatures(p);
       const dom = dominantBand(p);
       for (const f of creatures) {
@@ -893,18 +903,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // fresh spot on screen) as a local species, fading back in —
         // so the changing of the guard is always visible
         const wgt = bandWeight(f.band, p);
-        f.fade += (wgt - f.fade) * 0.05;
-        if (wgt <= 0.01 && f.fade < 0.03 && f.band !== dom && Math.random() < 0.25) {
+        f.fade += (wgt - f.fade) * (1 - Math.pow(0.95, dt));
+        if (wgt <= 0.01 && f.fade < 0.03 && f.band !== dom && Math.random() < 1 - Math.pow(0.75, dt)) {
           Object.assign(f, spawnFor(dom));
           continue;
         }
 
-        if (f.startle && --f.startle.delay <= 0) {
+        if (f.startle && (f.startle.delay -= dt) <= 0) {
           f.burst = Math.max(f.burst, f.startle.burst);
           if (f.startle.dir) f.dir = f.startle.dir;
           f.startle = null;
         }
-        f.burst *= 0.955;
+        f.burst *= Math.pow(0.955, dt);
 
         // every creature shies away from the pointer as it sweeps past;
         // the big species drift aside more lazily
@@ -912,7 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const md = Math.hypot(mdx, mdy);
         const mR = 110 + f.size * 1.2;
         if (md > 0.001 && md < mR) {
-          const push = (1 - md / mR) * (f.def.calm ? 0.5 : 1.2);
+          const push = (1 - md / mR) * (f.def.calm ? 0.5 : 1.2) * dt;
           f.x += (mdx / md) * push;
           if (f.def.drifts) f.y -= push * 0.4;
           else f.baseY += (mdy / md) * push;
@@ -921,30 +931,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (f.def.drifts) {
           // jellies pulse upward and sway, wrapping top to bottom;
           // a nearby click sends them shooting upward
-          f.tail += f.tailSpeed * (1 + f.burst * 2);
-          f.drift += 0.012;
+          f.tail += f.tailSpeed * (1 + f.burst * 2) * dt;
+          f.drift += 0.012 * dt;
           const pulse = (Math.sin(f.tail) + 1) * 0.5;
-          f.y -= f.speed * (0.4 + pulse) * (1 + f.burst * 8);
-          f.x += Math.sin(f.drift * 0.7) * 0.3;
+          f.y -= f.speed * (0.4 + pulse) * (1 + f.burst * 8) * dt;
+          f.x += Math.sin(f.drift * 0.7) * 0.3 * dt;
           if (f.y < -f.size * 2.4) {
             f.y = h + f.size * 2;
             f.x = w * (0.06 + Math.random() * 0.88);
           }
         } else {
           const sp = f.speed * (1 + f.burst * 4);
-          f.tail += (f.tailSpeed + sp * 0.04) * (1 + f.burst * 1.6);
-          f.bob += f.bobSpeed;
-          f.baseY += Math.sin(f.bob * 0.43 + f.drift) * 0.12;  // slow vertical wander
+          f.tail += (f.tailSpeed + sp * 0.04) * (1 + f.burst * 1.6) * dt;
+          f.bob += f.bobSpeed * dt;
+          f.baseY += Math.sin(f.bob * 0.43 + f.drift) * 0.12 * dt;  // slow vertical wander
           if (f.baseY < h * 0.08) f.baseY = h * 0.08;
           if (f.baseY > h * 0.90) f.baseY = h * 0.90;
-          f.x += f.dir * sp;
+          f.x += f.dir * sp * dt;
           f.y = f.baseY + Math.sin(f.bob) * f.bobAmp;
           // swim clean off one side, return on the other
           const m = f.size * 2.5 + 40;
           if (f.dir > 0 && f.x > w + m) { f.x = -m; f.baseY = h * (0.10 + Math.random() * 0.75); }
           if (f.dir < 0 && f.x < -m)   { f.x = w + m; f.baseY = h * (0.10 + Math.random() * 0.75); }
           // near fish occasionally exhale a bubble
-          if (f.layer > 0.55 && f.fade > 0.5 && Math.random() < 0.003 && fishBubbles.length < 20) {
+          if (f.layer > 0.55 && f.fade > 0.5 && Math.random() < 0.003 * dt && fishBubbles.length < 20) {
             fishBubbles.push({
               x: f.x + f.dir * f.size * 0.5,
               y: f.y - f.size * 0.1,
@@ -993,15 +1003,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, { passive: true });
 
-    function drawFishBubbles() {
+    function drawFishBubbles(dt) {
       const cb = depth.caustic;
       for (let i = fishBubbles.length - 1; i >= 0; i--) {
         const bu = fishBubbles[i];
-        bu.y -= bu.vy;
-        bu.drift += 0.05;
-        bu.x += Math.sin(bu.drift) * 0.25;
-        bu.r += 0.006;
-        bu.life -= 0.007;
+        bu.y -= bu.vy * dt;
+        bu.drift += 0.05 * dt;
+        bu.x += Math.sin(bu.drift) * 0.25 * dt;
+        bu.r += 0.006 * dt;
+        bu.life -= 0.007 * dt;
         if (bu.life <= 0 || bu.y < -10) { fishBubbles.splice(i, 1); continue; }
         ctx.strokeStyle = 'rgba(' + cb[0] + ', ' + cb[1] + ', ' + cb[2] + ', ' + (0.4 * bu.life).toFixed(3) + ')';
         ctx.lineWidth = 1;
@@ -1015,9 +1025,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Motion follows elapsed time, not frame count: dt is the time since
+    // the last frame in 60 fps frames (1 at 60 Hz, ~0.34 at 179 Hz), so the
+    // ocean keeps the same pace on any monitor. Capped so a long pause
+    // (a background tab) doesn't fling creatures across the screen.
     let t = 0;
-    function draw() {
-      t += 0.008;
+    let lastFrame = performance.now();
+    function draw(now = performance.now()) {
+      const dt = Math.min(3, Math.max(0, (now - lastFrame) / (1000 / 60)));
+      lastFrame = now;
+      t += 0.008 * dt;
       ctx.clearRect(0, 0, w, h);
 
       // Depth-aware light color
@@ -1028,8 +1045,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // ---- Ocean life: update, then draw the FAR layer (behind the
       // light web). Which species appear depends on the scroll depth.
       const depthP = scrollDepth();
-      updateCreatures(depthP);
-      drawFishBubbles();
+      updateCreatures(depthP, dt);
+      drawFishBubbles(dt);
       for (const f of creatures) {
         if (f.layer <= 0.55) drawCreature(f, 0.45 + f.layer * 0.30);
       }
@@ -1370,10 +1387,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // The bubble carries the depth's caustic light, so it dims with the water
-    function cursorLoop() {
+    let lastCursor = performance.now();
+    function cursorLoop(now = performance.now()) {
+      const dt = Math.min(3, Math.max(0, (now - lastCursor) / (1000 / 60)));
+      lastCursor = now;
       // Buoyant tracking — close behind the pointer with a hint of drag
-      bx += (mx - bx) * 0.38;
-      by += (my - by) * 0.38;
+      const follow = 1 - Math.pow(1 - 0.38, dt);
+      bx += (mx - bx) * follow;
+      by += (my - by) * follow;
       bubble.style.left = bx + 'px';
       bubble.style.top = by + 'px';
 
@@ -1382,8 +1403,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const cr = depth.caustic;
       for (let i = drops.length - 1; i >= 0; i--) {
         const d = drops[i];
-        d.life -= 0.028;
-        d.y += d.vy;
+        d.life -= 0.028 * dt;
+        d.y += d.vy * dt;
         if (d.life <= 0) { drops.splice(i, 1); continue; }
         tctx.fillStyle = 'rgba(' + cr[0] + ', ' + cr[1] + ', ' + cr[2] + ', ' + (0.45 * d.life).toFixed(3) + ')';
         tctx.beginPath();
@@ -1396,8 +1417,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ============ EXPERIENCE TOAST — home-page hint that the ocean is alive ============ */
-  // Home only (the one page whose hero isn't a .page-hero), on every visit
-  if (document.querySelector('.hero:not(.page-hero)')) {
+  // Home only (the one page whose hero isn't a .page-hero), once per visit
+  const firstHomeView = (() => {
+    if (!document.querySelector('.hero:not(.page-hero)')) return false;
+    try {
+      if (sessionStorage.getItem('hp-toast')) return false;
+      sessionStorage.setItem('hp-toast', '1');
+    } catch (e) { /* storage blocked: show it */ }
+    return true;
+  })();
+  if (firstHomeView) {
     const toast = document.createElement('aside');
     toast.className = 'toast';
     toast.setAttribute('role', 'status');
