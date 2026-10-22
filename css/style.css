@@ -1018,7 +1018,6 @@ textarea.form-input { min-height: 140px; resize: vertical; }
 .card[data-modal]:not(:has(.card-more)):focus-visible::after {
   opacity: 1; transform: translateX(-3px);
 }
-.blog-card[data-modal] .blog-card-link { pointer-events: none; } /* the card itself opens the pop-up */
 
 /* Blog cover images — shown on the card and again inside the pop-up */
 .blog-card-media {

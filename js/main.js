@@ -1472,6 +1472,27 @@ document.addEventListener('DOMContentLoaded', () => {
    ============================================================== */
 function initModals() {
   const DATA = window.MODAL_DATA || {};
+  const has = key => Object.prototype.hasOwnProperty.call(DATA, key);
+
+  /* ---- Shareable links ----
+     Every pop-up has its own address: opening one adds its #slug to the
+     URL (as a history entry, so Back closes it), and a link such as
+     /projects#llm-packageguard opens straight into that pop-up. */
+  const slugOf = key => DATA[key].slug || key;
+  const keyBySlug = Object.create(null);
+  Object.keys(DATA).forEach(key => { keyBySlug[key] = key; keyBySlug[slugOf(key)] = key; });
+  const keyFromHash = () => keyBySlug[location.hash.slice(1)];
+  // The page each kind of pop-up lives on, so a shared link lands in context
+  const PAGE_OF = { project: 'projects', research: 'projects', exp: 'experience', cert: 'experience', blog: 'blog', athletics: 'about' };
+  function shareUrl(key) {
+    const page = PAGE_OF[key.split('-')[0]];
+    const path = page === undefined ? location.pathname : location.pathname.replace(/[^/]*$/, '') + page;
+    return location.origin + path + '#' + slugOf(key);
+  }
+  const LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+  const CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M20 6 9 17l-5-5"/></svg>';
 
   // Build the modal shell once
   const backdrop = document.createElement('div');
@@ -1479,6 +1500,8 @@ function initModals() {
   backdrop.setAttribute('aria-hidden', 'true');
   backdrop.innerHTML =
     '<div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">' +
+    '  <span class="modal-share-note" role="status" aria-live="polite"></span>' +
+    '  <button class="modal-share" type="button" aria-label="Copy a link to this pop-up" title="Copy link">' + LINK_ICON + '</button>' +
     '  <button class="modal-close" aria-label="Close details">&#10005;</button>' +
     '  <div class="modal-kicker"></div>' +
     '  <h3 class="modal-title" id="modal-title"></h3>' +
@@ -1492,6 +1515,8 @@ function initModals() {
 
   const panel = backdrop.querySelector('.modal-panel');
   const closeBtn = backdrop.querySelector('.modal-close');
+  const shareBtn = backdrop.querySelector('.modal-share');
+  const shareNote = backdrop.querySelector('.modal-share-note');
   const elKicker = backdrop.querySelector('.modal-kicker');
   const elTitle = backdrop.querySelector('.modal-title');
   const elSub = backdrop.querySelector('.modal-sub');
@@ -1499,7 +1524,10 @@ function initModals() {
   const elBody = backdrop.querySelector('.modal-body');
   const elTags = backdrop.querySelector('.modal-tags');
   const elLinks = backdrop.querySelector('.modal-links');
+  const baseTitle = document.title;
+  let openKey = null;
   let lastFocused = null;
+  let noteTimer;
 
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -1541,11 +1569,19 @@ function initModals() {
     elLinks.style.display = (entry.links || []).length ? '' : 'none';
   }
 
-  function open(key) {
-    const entry = DATA[key];
-    if (!entry) return;
-    lastFocused = document.activeElement;
-    render(entry);
+  function resetShare() {
+    window.clearTimeout(noteTimer);
+    shareNote.classList.remove('show');
+    shareBtn.innerHTML = LINK_ICON;
+  }
+
+  // Show / hide only; the address is handled by open, close and followAddress
+  function show(key) {
+    if (!openKey) lastFocused = document.activeElement;
+    openKey = key;
+    render(DATA[key]);
+    resetShare();
+    document.title = DATA[key].title + ' — Hemraj Patel';
     backdrop.classList.add('open');
     backdrop.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
@@ -1553,12 +1589,58 @@ function initModals() {
     panel.focus();
   }
 
-  function close() {
+  function hide() {
+    if (!openKey) return;
+    openKey = null;
+    document.title = baseTitle;
     backdrop.classList.remove('open');
     backdrop.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('modal-open');
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
+
+  // From a card: show it, with its own history entry (#slug)
+  function open(key) {
+    if (!has(key)) return;
+    show(key);
+    const hash = '#' + slugOf(key);
+    if (location.hash !== hash) history.pushState({ modal: key }, '', location.pathname + location.search + hash);
+  }
+
+  // From the X, the backdrop or Escape: step off the #slug entry too
+  function close() {
+    if (!openKey) return;
+    hide();
+    if (history.state && history.state.modal) history.back();
+    else history.replaceState(history.state, '', location.pathname + location.search);
+  }
+
+  // Back / Forward, or an address edited by hand
+  function followAddress() {
+    const key = keyFromHash();
+    if (key && key !== openKey) show(key);
+    else if (!key && openKey) hide();
+  }
+  window.addEventListener('popstate', followAddress);
+  window.addEventListener('hashchange', followAddress);
+
+  // Share: phones get the native share sheet, everything else copies the link
+  shareBtn.addEventListener('click', () => {
+    if (!openKey) return;
+    const url = shareUrl(openKey);
+    if (navigator.share && window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+      navigator.share({ title: document.title, url }).catch(() => {});
+      return;
+    }
+    const copied = navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject();
+    copied.then(() => {
+      shareNote.textContent = 'Link copied';
+      shareNote.classList.add('show');
+      shareBtn.innerHTML = CHECK_ICON;
+      window.clearTimeout(noteTimer);
+      noteTimer = window.setTimeout(resetShare, 1800);
+    }, () => window.prompt('Copy this link:', url));
+  });
 
   // Open: any element carrying data-modal (cards, blog links, etc.)
   document.addEventListener('click', e => {
@@ -1566,6 +1648,8 @@ function initModals() {
     if (!trigger) return;
     // Let real external links inside a card behave normally
     if (e.target.closest('a[href^="http"], a[href^="mailto"]')) return;
+    // ...and a post link opened in a new tab (Ctrl/Cmd/Shift-click)
+    if (e.target.closest('a[href]') && (e.ctrlKey || e.metaKey || e.shiftKey)) return;
     e.preventDefault();
     open(trigger.getAttribute('data-modal'));
   });
@@ -1590,4 +1674,12 @@ function initModals() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && backdrop.classList.contains('open')) close();
   });
+
+  // Arriving on a shared link: open straight into that pop-up, its card in view behind it
+  const linked = keyFromHash();
+  if (linked) {
+    const card = document.querySelector('[data-modal="' + linked + '"]');
+    if (card) card.scrollIntoView({ block: 'center', behavior: 'instant' });
+    show(linked);
+  }
 }

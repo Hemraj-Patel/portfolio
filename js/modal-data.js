@@ -1,6 +1,7 @@
 /* ============================================================
    MODAL CONTENT — edit freely.
    Each key matches a data-modal="key" attribute in the HTML.
+   slug: the pop-up's own link, e.g. hemrajpatel.me/projects#llm-packageguard
    Sections: { h: heading, p: [paragraphs], li: [bullets] }
    ============================================================ */
 window.MODAL_DATA = {
@@ -8,6 +9,7 @@ window.MODAL_DATA = {
   /* ---------------- PROJECTS ---------------- */
 
   'project-llm': {
+    slug: 'llm-packageguard',
     kicker: 'Research — NYU Osiris Lab',
     title: 'LLM PackageGuard',
     sub: 'Package Hallucination Detection · AI Security · LLM Supply Chain · Python',
@@ -49,6 +51,7 @@ window.MODAL_DATA = {
   },
 
   'project-swiper': {
+    slug: 'swiper-no-swiping',
     kicker: 'Security — Data Protection',
     title: 'Swiper No Swiping',
     sub: 'PII Detection · Privacy · Chrome Extension',
@@ -87,6 +90,7 @@ window.MODAL_DATA = {
   },
 
   'project-neuraflix': {
+    slug: 'neuraflix',
     kicker: 'Machine Learning',
     title: 'Neuraflix — Movie Recommendation System',
     sub: 'TMDB 5000 Dataset · Hybrid Recommenders · Python',
@@ -142,6 +146,7 @@ window.MODAL_DATA = {
   },
 
   'project-face-auth': {
+    slug: 'face-recognition-login',
     kicker: 'Authentication',
     title: 'Web Authentication via Face Recognition',
     sub: 'Flask · OpenCV · SQLAlchemy',
@@ -192,6 +197,7 @@ window.MODAL_DATA = {
   },
 
   'project-malware-lab': {
+    slug: 'malware-analysis-lab',
     kicker: 'Threat Research',
     title: 'Malware Analysis Lab',
     sub: 'Offensive + Defensive Training Environment',
@@ -222,6 +228,7 @@ window.MODAL_DATA = {
   },
 
   'project-sams': {
+    slug: 'smart-attendance-system',
     kicker: 'Automation',
     title: 'Smart Attendance Management System',
     sub: 'Face Detection · MATLAB · Automation',
@@ -269,6 +276,7 @@ window.MODAL_DATA = {
   },
 
   'research-focus': {
+    slug: 'graduate-research',
     kicker: 'Research — NYU Osiris Lab',
     title: 'Adversarial ML & LLM Supply Chain Security',
     sub: 'Graduate research — NYU Osiris Lab, 2024–2026',
@@ -286,6 +294,7 @@ window.MODAL_DATA = {
   /* ---------------- EXPERIENCE ---------------- */
 
   'exp-luvansh': {
+    slug: 'luvansh-it-analyst',
     kicker: 'Experience',
     title: 'IT Analyst — Luvansh',
     sub: 'Jul 2026 — Present · Full-time · New York, NY',
@@ -303,6 +312,7 @@ window.MODAL_DATA = {
   },
 
   'exp-nyu-research': {
+    slug: 'nyu-research-assistant',
     kicker: 'Experience',
     title: 'Security Research Assistant — New York University',
     sub: 'Sep 2024 — May 2026 · Part-time · New York, NY',
@@ -321,6 +331,7 @@ window.MODAL_DATA = {
   },
 
   'exp-nyu-admin': {
+    slug: 'nyu-administrative-assistant',
     kicker: 'Experience',
     title: 'Graduate Administrative Assistant — New York University',
     sub: 'May 2025 — Sep 2025 · Full-time · New York, NY',
@@ -340,6 +351,7 @@ window.MODAL_DATA = {
   },
 
   'exp-span': {
+    slug: 'span-security-engineer',
     kicker: 'Experience',
     title: 'Security Engineer — SPAN Inspection Systems Pvt. Ltd.',
     sub: 'May 2023 — Jul 2024 · Full-time · Gandhinagar, GJ, India',
@@ -358,6 +370,7 @@ window.MODAL_DATA = {
   },
 
   'exp-techdefence': {
+    slug: 'techdefence-security-analyst',
     kicker: 'Experience',
     title: 'Security Analyst — TechDefence Labs Solutions Pvt. Ltd.',
     sub: 'May 2022 — May 2023 · Internship · Ahmedabad, GJ, India',
@@ -378,6 +391,7 @@ window.MODAL_DATA = {
   /* ---------------- ATHLETICS ---------------- */
 
   'athletics-journey': {
+    slug: 'from-pool-to-protocol',
     kicker: 'Athletics — From Pool to Protocol',
     gold: true,
     title: 'My Journey as an Athlete',
@@ -421,6 +435,7 @@ window.MODAL_DATA = {
   /* ---------------- CERTIFICATIONS ---------------- */
 
   'cert-mastercard': {
+    slug: 'mastercard-job-simulation',
     kicker: 'Certification',
     title: 'Cybersecurity Job Simulation',
     sub: 'Mastercard / Forage · Apr 2026',
@@ -429,6 +444,7 @@ window.MODAL_DATA = {
   },
 
   'cert-leetcode': {
+    slug: 'leetcode-bootcamp',
     kicker: 'Certification',
     title: 'Career Hub LeetCode Bootcamp Badge',
     sub: 'NYU Tandon School of Engineering · Jan 2026',
@@ -444,6 +460,7 @@ window.MODAL_DATA = {
   },
 
   'cert-security-plus': {
+    slug: 'comptia-security-plus',
     kicker: 'Certification',
     title: 'CompTIA Security+',
     sub: 'CompTIA · Aug 2025',
@@ -455,6 +472,7 @@ window.MODAL_DATA = {
   },
 
   'cert-google': {
+    slug: 'google-cybersecurity',
     kicker: 'Certification',
     title: 'Google Cybersecurity Certificate',
     sub: 'Google · May 2025',
@@ -466,6 +484,7 @@ window.MODAL_DATA = {
   },
 
   'cert-datascience': {
+    slug: 'data-science-bootcamp',
     kicker: 'Certification',
     title: 'Data Science Bootcamp Badge',
     sub: 'NYU Tandon School of Engineering · May 2025',
@@ -479,6 +498,7 @@ window.MODAL_DATA = {
   /* ---------------- BLOG POSTS ---------------- */
 
   'blog-phishing': {
+    slug: 'phishing-awareness',
     kicker: 'Blog — Threat Awareness',
     title: 'Security Training: Phishing Awareness',
     sub: 'April 2026',
@@ -517,6 +537,7 @@ window.MODAL_DATA = {
   },
 
   'blog-resilience': {
+    slug: 'operational-cyber-resilience',
     kicker: 'Blog — Research',
     title: 'Implementing Operational Cyber Resilience in the IT Sector',
     sub: 'March 2026 · Short research paper',
@@ -547,6 +568,7 @@ window.MODAL_DATA = {
   },
 
   'blog-athlete': {
+    slug: 'my-journey-as-an-athlete',
     kicker: 'Blog — Personal Story',
     title: 'My Journey as an Athlete',
     sub: 'January 2025',
@@ -567,6 +589,7 @@ window.MODAL_DATA = {
   },
 
   'blog-hello': {
+    slug: 'hello-there',
     kicker: 'Blog — Introduction',
     title: 'Hello there!',
     sub: 'January 2025',

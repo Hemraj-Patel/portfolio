@@ -188,6 +188,58 @@
   outline-offset: 2px;
 }
 
+/* Copy link: left of the close button; the note confirms the copy */
+.modal-share {
+  position: absolute;
+  top: 1.1rem;
+  right: calc(1.1rem + 38px + 0.5rem);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ui-border);
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(230, 245, 242, 0.75);
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+.modal-share svg {
+  width: 16px;
+  height: 16px;
+}
+.modal-share:hover {
+  border-color: var(--ui-accent);
+  color: var(--ui-accent);
+}
+.modal-share:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 2px;
+}
+.modal-share-note {
+  position: absolute;
+  top: calc(1.1rem + 5px);
+  right: calc(1.1rem + 76px + 1.1rem);
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--ui-accent);
+  border-radius: 999px;
+  background: rgba(13, 22, 25, 0.98);
+  color: var(--ui-accent);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+.modal-share-note.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .modal-kicker {
   font-size: 0.72rem;
   font-weight: 700;
@@ -195,6 +247,7 @@
   text-transform: uppercase;
   color: var(--ui-accent);
   margin-bottom: 0.7rem;
+  padding-right: 5.5rem; /* clear of the share + close buttons */
 }
 .modal-kicker.gold {
   color: var(--ui-gold);
@@ -334,7 +387,9 @@ body.modal-open {
   .modal-panel,
   .cursor-dot,
   .cursor-ring,
-  .modal-close {
+  .modal-close,
+  .modal-share,
+  .modal-share-note {
     transition: none;
   }
 }
