@@ -334,7 +334,7 @@ window.MODAL_DATA = {
     slug: 'nyu-administrative-assistant',
     kicker: 'Experience',
     title: 'Graduate Administrative Assistant — New York University',
-    sub: 'May 2025 — Sep 2025 · Full-time · New York, NY',
+    sub: 'Feb 2025 — Apr 2026 · Part-time · New York, NY',
     sections: [
       {
         li: [
@@ -420,7 +420,7 @@ window.MODAL_DATA = {
         li: [
           '<strong>Discipline</strong> — 5 AM training and patch management both reward showing up every day; neither allows shortcuts.',
           '<strong>Pressure management</strong> — the final 50 meters of a race and the final hours of an incident response share the same adrenaline.',
-          '<strong>Continuous improvement</strong> — a swimmer analyzes every stroke; a security engineer analyzes every alert.',
+          '<strong>Continuous improvement</strong> — a swimmer analyzes every stroke; a security analyst investigates every alert.',
           '<strong>Team reliance</strong> — relay teams trust each other completely; security teams need the same clear handoffs.',
           '<strong>Adaptability</strong> — conditions change in the pool and in the threat landscape; adapting is survival.',
           '<strong>The long game</strong> — championships are won in training, and security posture is built in daily practice, not during breaches.'
